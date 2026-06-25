@@ -62,29 +62,13 @@
 
 {{-- Charts Row --}}
 <div class="row g-3 mb-4">
-    <div class="col-md-7">
+    <div class="col-md-12">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Santri per Kelas</span>
             </div>
             <div class="card-body">
-                <canvas id="chartSantriKelas" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-pie-chart-fill me-2 text-gold"></i>Absensi Bulan Ini
-            </div>
-            <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                <canvas id="chartAbsensi" height="180"></canvas>
-                <div class="d-flex gap-3 mt-3 flex-wrap justify-content-center" style="font-size:12px;">
-                    <span><span class="badge" style="background:#d1fae5;color:#065f46;">Hadir</span> {{ $absensiStats['hadir'] ?? 0 }}</span>
-                    <span><span class="badge" style="background:#fef3c7;color:#92400e;">Sakit</span> {{ $absensiStats['sakit'] ?? 0 }}</span>
-                    <span><span class="badge" style="background:#e0f2fe;color:#075985;">Izin</span> {{ $absensiStats['izin'] ?? 0 }}</span>
-                    <span><span class="badge" style="background:#fee2e2;color:#991b1b;">Alfa</span> {{ $absensiStats['alfa'] ?? 0 }}</span>
-                </div>
+                <canvas id="chartSantriKelas" height="250"></canvas>
             </div>
         </div>
     </div>
@@ -195,30 +179,6 @@ if (ctxKelas) {
     });
 }
 
-// Chart Absensi
-const ctxAbsensi = document.getElementById('chartAbsensi');
-if (ctxAbsensi) {
-    new Chart(ctxAbsensi, {
-        type: 'doughnut',
-        data: {
-            labels: ['Hadir', 'Sakit', 'Izin', 'Alfa'],
-            datasets: [{
-                data: [
-                    {{ $absensiStats['hadir'] ?? 0 }},
-                    {{ $absensiStats['sakit'] ?? 0 }},
-                    {{ $absensiStats['izin'] ?? 0 }},
-                    {{ $absensiStats['alfa'] ?? 0 }},
-                ],
-                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
-                borderWidth: 0,
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '65%',
-            plugins: { legend: { display: false } }
-        }
-    });
-}
+
 </script>
 @endpush

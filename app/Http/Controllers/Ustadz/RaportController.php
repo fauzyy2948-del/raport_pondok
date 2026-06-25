@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Ustadz;
 
 use App\Http\Controllers\Controller;
 use App\Models\Raport;
@@ -19,22 +19,29 @@ class RaportController extends Controller
 {
     public function dashboard(Request $request)
     {
+        $ustadzId = auth()->user()->ustadz->id;
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        
+        if (!$kelasWali) {
+            return redirect()->route('ustadz.dashboard')->with('error', 'Anda bukan wali kelas.');
+        }
+
         $tahunAktif = TahunAjaran::aktif();
         $tahunAjaran = TahunAjaran::orderByDesc('nama')->get();
         $selectedTahun = $request->tahun_ajaran_id ?? $tahunAktif?->id;
         $tahunSelected = $selectedTahun ? TahunAjaran::find($selectedTahun) : $tahunAktif;
 
         // Stat cards
-        $totalSantriAktif = Santri::where('status', 'aktif')->count();
-        $totalRaport = Raport::when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))->count();
-        $raportTerbit = Raport::when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
+        $totalSantriAktif = Santri::where('status', 'aktif')->where('kelas_id', $kelasWali->id)->count();
+        $totalRaport = Raport::where('kelas_id', $kelasWali->id)->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))->count();
+        $raportTerbit = Raport::where('kelas_id', $kelasWali->id)->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
             ->where('diterbitkan', true)->count();
         $raportBelumTerbit = $totalRaport - $raportTerbit;
-        $rataRataUmum = Raport::when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
+        $rataRataUmum = Raport::where('kelas_id', $kelasWali->id)->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
             ->avg('rata_rata') ?? 0;
 
-        // Progress generate per kelas
-        $kelasProgress = Kelas::withCount(['santri as total_santri' => function ($q) {
+        // Progress generate per kelas (Hanya kelas wali)
+        $kelasProgress = Kelas::where('id', $kelasWali->id)->withCount(['santri as total_santri' => function ($q) {
             $q->where('status', 'aktif');
         }])->get()->map(function ($kelas) use ($selectedTahun) {
             $sudahGenerate = Raport::where('kelas_id', $kelas->id)
@@ -60,7 +67,7 @@ class RaportController extends Controller
         });
 
         // Distribusi predikat
-        $distribusiPredikat = Raport::when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
+        $distribusiPredikat = Raport::where('kelas_id', $kelasWali->id)->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
             ->whereNotNull('predikat_akhir')
             ->selectRaw('predikat_akhir, COUNT(*) as jumlah')
             ->groupBy('predikat_akhir')
@@ -73,6 +80,7 @@ class RaportController extends Controller
         $nilaiPerMapel = DB::table('raport_detail')
             ->join('raport', 'raport_detail.raport_id', '=', 'raport.id')
             ->join('mapel', 'raport_detail.mapel_id', '=', 'mapel.id')
+            ->where('raport.kelas_id', $kelasWali->id)
             ->when($selectedTahun, fn($q) => $q->where('raport.tahun_ajaran_id', $selectedTahun))
             ->selectRaw('mapel.nama, ROUND(AVG(raport_detail.nilai_akhir), 1) as rata_rata')
             ->groupBy('mapel.id', 'mapel.nama')
@@ -82,6 +90,7 @@ class RaportController extends Controller
 
         // Top 10 santri terbaik
         $topSantri = Raport::with(['santri', 'kelas'])
+            ->where('kelas_id', $kelasWali->id)
             ->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
             ->whereNotNull('rata_rata')
             ->orderByDesc('rata_rata')
@@ -90,31 +99,38 @@ class RaportController extends Controller
 
         // Raport terbaru diterbitkan
         $raportTerbaru = Raport::with(['santri', 'kelas', 'tahunAjaran'])
+            ->where('kelas_id', $kelasWali->id)
             ->where('diterbitkan', true)
             ->latest('diterbitkan_pada')
             ->take(8)
             ->get();
 
         // Trend raport per bulan (12 bulan terakhir)
-        $trendBulanan = Raport::selectRaw('STRFTIME("%Y-%m", created_at) as bulan, COUNT(*) as jumlah')
+        $trendBulanan = Raport::where('kelas_id', $kelasWali->id)->selectRaw('STRFTIME("%Y-%m", created_at) as bulan, COUNT(*) as jumlah')
             ->where('created_at', '>=', now()->subMonths(12))
             ->groupByRaw('STRFTIME("%Y-%m", created_at)')
             ->orderBy('bulan')
             ->get();
 
-        return view('admin.raport.dashboard', compact(
+        return view('ustadz.raport.dashboard', compact(
             'tahunAktif', 'tahunAjaran', 'selectedTahun', 'tahunSelected',
             'totalSantriAktif', 'totalRaport', 'raportTerbit', 'raportBelumTerbit',
             'rataRataUmum', 'kelasProgress', 'distribusiPredikat',
-            'nilaiPerMapel', 'topSantri', 'raportTerbaru', 'trendBulanan'
+            'nilaiPerMapel', 'topSantri', 'raportTerbaru', 'trendBulanan', 'kelasWali'
         ));
     }
 
     public function index(Request $request)
     {
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        if (!$kelasWali) {
+            return redirect()->route('ustadz.dashboard')->with('error', 'Anda bukan wali kelas.');
+        }
+
         $aktifTA    = TahunAjaran::aktif();
         $tahunAjarans = TahunAjaran::orderByDesc('nama')->get();
-        $kelasList  = Kelas::orderBy('nama')->get();
+        // $kelasList  = Kelas::orderBy('nama')->get(); // No need, we only show for $kelasWali
+        $kelasList  = collect([$kelasWali]);
         $selectedTahunId = $request->tahun_ajaran_id ?? $aktifTA?->id;
 
         $santris = Santri::with([
@@ -122,7 +138,7 @@ class RaportController extends Controller
                 'user',
                 'raport' => fn($q) => $q->when($selectedTahunId, fn($q2) => $q2->where('tahun_ajaran_id', $selectedTahunId)),
             ])
-            ->when($request->kelas_id, fn($q) => $q->where('kelas_id', $request->kelas_id))
+            ->where('kelas_id', $kelasWali->id)
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($q2) use ($request) {
                     $q2->where('nisn', 'like', '%'.$request->search.'%')
@@ -135,29 +151,33 @@ class RaportController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.raport.index', compact(
-            'santris', 'kelasList', 'tahunAjarans', 'aktifTA', 'selectedTahunId'
+        return view('ustadz.raport.index', compact(
+            'santris', 'kelasList', 'tahunAjarans', 'aktifTA', 'selectedTahunId', 'kelasWali'
         ));
     }
 
     public function generate(Request $request)
     {
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        if (!$kelasWali) {
+            return redirect()->route('ustadz.dashboard')->with('error', 'Anda bukan wali kelas.');
+        }
+
         $request->validate([
             'tahun_ajaran_id'  => 'required|exists:tahun_ajaran,id',
-            'kelas_id'         => 'nullable|exists:kelas,id',
+            // 'kelas_id'         => 'nullable|exists:kelas,id', // Diabaikan, kita gunakan $kelasWali->id
             'santri_id_single' => 'nullable|exists:santri,id',
         ]);
 
         $tahunAjaran = TahunAjaran::findOrFail($request->tahun_ajaran_id);
 
         $santriQuery = Santri::aktif()
+            ->where('kelas_id', $kelasWali->id)
             ->with(['nilai' => fn($q) => $q->where('tahun_ajaran_id', $tahunAjaran->id)->with('mapel')]);
 
         // Single santri generate (dari tombol per-baris di tabel)
         if ($request->santri_id_single) {
             $santriQuery->where('id', $request->santri_id_single);
-        } elseif ($request->kelas_id) {
-            $santriQuery->where('kelas_id', $request->kelas_id);
         }
 
         $santriList = $santriQuery->get();
@@ -225,20 +245,35 @@ class RaportController extends Controller
             }
         });
 
-        return redirect()->route('admin.raport.index')
+        return redirect()->route('ustadz.raport.index')
             ->with('success', "Berhasil generate raport untuk {$generated} santri.");
     }
 
     public function show(Raport $raport)
     {
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        if ($raport->kelas_id != $kelasWali?->id) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         $raport->load(['santri.kelas', 'santri.waliSantri', 'tahunAjaran', 'detail.mapel']);
         $pondok = PengaturanPondok::pengaturan();
-        return view('admin.raport.show', compact('raport', 'pondok'));
+        return view('ustadz.raport.show', compact('raport', 'pondok'));
     }
 
     public function cetak(Raport $raport)
     {
-        $raport->load(['santri.kelas', 'santri.waliSantri', 'tahunAjaran', 'detail.mapel']);
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        if ($raport->kelas_id != $kelasWali?->id) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        $raport->load(['santri.kelas.waliKelas', 'santri.waliSantri', 'tahunAjaran', 'detail.mapel']);
+        
+        if ($raport->detail->isEmpty()) {
+            return redirect()->back()->with('error', 'Data nilai belum lengkap. Pastikan guru mapel telah menginput nilai dan Anda telah men-generate rapor.');
+        }
+
         $pengaturan = PengaturanPondok::pengaturan();
 
         // Variabel eksplisit agar cocok dengan template PDF
@@ -246,16 +281,26 @@ class RaportController extends Controller
         $tahunAjaran  = $raport->tahunAjaran;
         $raportDetails= $raport->detail;
 
-        $pdf = Pdf::loadView('raport_pdf', compact(
+        $pdf = Pdf::loadView('raport.pdf', compact(
             'raport', 'pengaturan', 'santri', 'tahunAjaran', 'raportDetails'
         ))->setPaper('A4', 'portrait');
 
-        $filename = 'raport_' . ($santri->nisn ?? 'santri') . '_' . ($tahunAjaran->nama ?? 'ta') . '.pdf';
+        // Format nama file: Rapor_{NamaSantri}_{Semester}_{TahunAjaran}.pdf
+        $cleanTahunAjaran = str_replace('/', '-', $tahunAjaran->nama ?? 'ta');
+        $semester = ucfirst($tahunAjaran->semester ?? 'smt');
+        $namaSantri = str_replace(' ', '_', $santri->nama ?? 'santri');
+        $filename = "Raport_{$namaSantri}_{$semester}_{$cleanTahunAjaran}.pdf";
+
         return $pdf->stream($filename);
     }
 
     public function terbitkan(Raport $raport)
     {
+        $kelasWali = auth()->user()->ustadz->kelasWali;
+        if ($raport->kelas_id != $kelasWali?->id) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
         $raport->update(['diterbitkan' => true, 'diterbitkan_pada' => now()]);
         return back()->with('success', 'Raport berhasil diterbitkan.');
     }

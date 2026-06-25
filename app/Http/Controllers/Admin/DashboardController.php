@@ -49,16 +49,7 @@ class DashboardController extends Controller
                 ]);
         }
 
-        // Absensi bulan ini
-        $absensiStats = [];
-        if ($tahunAktif) {
-            $absensiStats = Absensi::where('tahun_ajaran_id', $tahunAktif->id)
-                ->whereMonth('tanggal', now()->month)
-                ->selectRaw('status, COUNT(*) as jumlah')
-                ->groupBy('status')
-                ->pluck('jumlah', 'status')
-                ->toArray();
-        }
+        // Absensi sudah tidak harian lagi, chart dihapus
 
         // Pengumuman terbaru
         $pengumuman = Pengumuman::aktif()->latest()->take(5)->get();
@@ -74,7 +65,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'stats', 'santriPerKelas', 'nilaiPerMapel',
-            'absensiStats', 'pengumuman', 'kalender',
+            'pengumuman', 'kalender',
             'tahunAktif', 'pondok'
         ));
     }

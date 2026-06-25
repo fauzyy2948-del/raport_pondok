@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode')->unique();
             $table->string('nama');
-            $table->enum('kategori', ['diniyah', 'umum', 'muatan_lokal'])->default('diniyah');
+            $table->enum('kategori', ['diniyah', 'umum'])->default('diniyah');
             $table->integer('kkm')->default(70);
             $table->integer('bobot')->default(1);
             $table->text('keterangan')->nullable();

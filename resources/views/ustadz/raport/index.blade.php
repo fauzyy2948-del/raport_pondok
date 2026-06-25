@@ -70,7 +70,7 @@
             </p>
         </div>
         <div class="col-md-6 d-flex gap-2 justify-content-md-end mt-3 mt-md-0 flex-wrap">
-            <a href="{{ route('admin.raport.dashboard') }}" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.35);">
+            <a href="{{ route('ustadz.raport.dashboard') }}" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.35);">
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard Raport
             </a>
             <button type="button" class="btn btn-gold btn-sm" data-bs-toggle="modal" data-bs-target="#modalGenerate">
@@ -83,7 +83,7 @@
 {{-- Filter Card --}}
 <div class="card mb-4">
     <div class="card-body">
-        <form action="{{ route('admin.raport.index') }}" method="GET" class="row g-3 align-items-end">
+        <form action="{{ route('ustadz.raport.index') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Tahun Ajaran</label>
                 <select name="tahun_ajaran_id" class="form-select">
@@ -115,7 +115,7 @@
                     <i class="bi bi-search"></i> Cari
                 </button>
                 @if(request('search') || request('kelas_id') || request('tahun_ajaran_id'))
-                    <a href="{{ route('admin.raport.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('ustadz.raport.index') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-x"></i>
                     </a>
                 @endif
@@ -225,18 +225,18 @@
                                 <div class="action-group">
                                     @if($hasRaport)
                                         {{-- Lihat Detail --}}
-                                        <a href="{{ route('admin.raport.show', $raport->id) }}"
+                                        <a href="{{ route('ustadz.raport.show', $raport->id) }}"
                                            class="btn btn-sm btn-outline-primary" title="Lihat Detail">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         {{-- Cetak PDF --}}
-                                        <a href="{{ route('admin.raport.cetak', $raport->id) }}"
+                                        <a href="{{ route('ustadz.raport.cetak', $raport->id) }}"
                                            class="btn btn-sm btn-danger" target="_blank" title="Cetak PDF">
                                             <i class="bi bi-file-earmark-pdf"></i>
                                         </a>
                                         {{-- Terbitkan (jika belum) --}}
                                         @if(!$isTerbit)
-                                            <form action="{{ route('admin.raport.terbitkan', $raport->id) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('ustadz.raport.terbitkan', $raport->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success" title="Terbitkan Raport"
                                                     onclick="return confirm('Terbitkan raport {{ $s->nama ?? $s->user?->name }}?')">
@@ -250,7 +250,7 @@
                                         @endif
                                     @else
                                         {{-- Generate per santri --}}
-                                        <form action="{{ route('admin.raport.generate') }}" method="POST" class="d-inline">
+                                        <form action="{{ route('ustadz.raport.generate') }}" method="POST" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="tahun_ajaran_id" value="{{ $selectedTahunId ?? $aktifTA?->id }}">
                                             <input type="hidden" name="santri_id_single" value="{{ $s->id }}">
@@ -288,7 +288,7 @@
 <div class="modal fade" id="modalGenerate" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:16px;border:none;">
-            <form action="{{ route('admin.raport.generate') }}" method="POST">
+            <form action="{{ route('ustadz.raport.generate') }}" method="POST">
                 @csrf
                 <div class="modal-header" style="border-bottom:1px solid var(--gray-200);">
                     <h5 class="modal-title fw-700">

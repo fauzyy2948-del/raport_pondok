@@ -27,7 +27,7 @@ class MapelController extends Controller
         $request->validate([
             'kode' => 'required|unique:mapel,kode|max:20',
             'nama' => 'required|string|max:100',
-            'kategori' => 'required|in:diniyah,umum,muatan_lokal',
+            'kategori' => 'required|in:diniyah,umum',
             'kkm' => 'required|integer|min:0|max:100',
             'bobot' => 'required|integer|min:1',
         ]);
@@ -45,7 +45,7 @@ class MapelController extends Controller
         $request->validate([
             'kode' => ['required', 'max:20', \Illuminate\Validation\Rule::unique('mapel', 'kode')->ignore($mapel->id)],
             'nama' => 'required|string|max:100',
-            'kategori' => 'required|in:diniyah,umum,muatan_lokal',
+            'kategori' => 'required|in:diniyah,umum',
             'kkm' => 'required|integer|min:0|max:100',
             'bobot' => 'required|integer|min:1',
         ]);

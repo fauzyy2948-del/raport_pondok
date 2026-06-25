@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Raport')
 @section('page-title', 'Dashboard Raport')
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.raport.index') }}">Raport</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ustadz.raport.index') }}">Raport</a></li>
     <li class="breadcrumb-item active">Dashboard</li>
 @endsection
 
@@ -256,10 +256,10 @@
             </p>
         </div>
         <div class="col-md-5 d-flex gap-2 justify-content-md-end mt-3 mt-md-0 flex-wrap">
-            <a href="{{ route('admin.raport.index') }}" class="btn btn-gold btn-sm">
+            <a href="{{ route('ustadz.raport.index') }}" class="btn btn-gold btn-sm">
                 <i class="bi bi-list-ul me-1"></i>Kelola Raport
             </a>
-            <a href="{{ route('admin.raport.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);">
+            <a href="{{ route('ustadz.raport.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);">
                 <i class="bi bi-download me-1"></i>Export
             </a>
         </div>
@@ -267,7 +267,7 @@
 </div>
 
 {{-- Filter Tahun Ajaran --}}
-<form method="GET" action="{{ route('admin.raport.dashboard') }}" class="filter-bar">
+<form method="GET" action="{{ route('ustadz.raport.dashboard') }}" class="filter-bar">
     <label><i class="bi bi-funnel me-1"></i>Filter:</label>
     <select name="tahun_ajaran_id" class="form-select form-select-sm" style="width:auto;min-width:220px;" onchange="this.form.submit()">
         <option value="">Semua Tahun Ajaran</option>
@@ -278,7 +278,7 @@
         @endforeach
     </select>
     @if($selectedTahun)
-        <a href="{{ route('admin.raport.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+        <a href="{{ route('ustadz.raport.dashboard') }}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-x me-1"></i>Reset
         </a>
     @endif
@@ -349,28 +349,16 @@
             </div>
             <div class="cc-body">
                 <div class="row g-2">
-                    <div class="col-6 col-md-3">
-                        <a href="{{ route('admin.raport.index') }}" class="quick-action-btn w-100">
+                    <div class="col-6 col-md-6">
+                        <a href="{{ route('ustadz.raport.index') }}" class="quick-action-btn w-100">
                             <span class="qa-icon">📋</span>
                             <span>Kelola Raport</span>
                         </a>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <a href="{{ route('admin.raport.index') }}" class="quick-action-btn w-100">
+                    <div class="col-6 col-md-6">
+                        <a href="{{ route('ustadz.raport.index') }}" class="quick-action-btn w-100">
                             <span class="qa-icon">⚡</span>
                             <span>Generate Raport</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a href="{{ route('admin.santri.index') }}" class="quick-action-btn w-100">
-                            <span class="qa-icon">🎓</span>
-                            <span>Data Santri</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a href="{{ route('admin.tahun-ajaran.index') }}" class="quick-action-btn w-100">
-                            <span class="qa-icon">📅</span>
-                            <span>Tahun Ajaran</span>
                         </a>
                     </div>
                 </div>
@@ -517,7 +505,7 @@
         <div class="chart-card h-100">
             <div class="cc-header">
                 <span class="cc-title"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>Top 10 Santri Berprestasi</span>
-                <a href="{{ route('admin.raport.index') }}" class="btn btn-sm btn-outline-secondary" style="font-size:11px;">
+                <a href="{{ route('ustadz.raport.index') }}" class="btn btn-sm btn-outline-secondary" style="font-size:11px;">
                     Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -601,7 +589,7 @@
             </div>
             @if($raportTerbit > 8)
                 <div style="padding:12px 20px;border-top:1px solid var(--gray-200);">
-                    <a href="{{ route('admin.raport.index') }}" class="btn btn-outline-secondary btn-sm w-100" style="font-size:12px;">
+                    <a href="{{ route('ustadz.raport.index') }}" class="btn btn-outline-secondary btn-sm w-100" style="font-size:12px;">
                         Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>

@@ -13,6 +13,7 @@
                     <div class="mb-3"><label class="form-label">Nama Kelas <span class="text-danger">*</span></label><input type="text" name="nama" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" placeholder="Contoh: Kelas 1A, Kamar A" required>@error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
                     <div class="mb-3"><label class="form-label">Tingkat <span class="text-danger">*</span></label><input type="text" name="tingkat" class="form-control @error('tingkat') is-invalid @enderror" value="{{ old('tingkat') }}" placeholder="1, 2, 3, ..." required></div>
                     <div class="mb-3"><label class="form-label">Jenis</label><select name="jenis" class="form-select"><option value="campuran" {{ old('jenis') === 'campuran' ? 'selected' : '' }}>Campuran</option><option value="diniyah" {{ old('jenis') === 'diniyah' ? 'selected' : '' }}>Diniyah</option><option value="umum" {{ old('jenis') === 'umum' ? 'selected' : '' }}>Umum</option></select></div>
+                    <div class="mb-3"><label class="form-label">Wali Kelas</label><select name="ustadz_id" class="form-select"><option value="">-- Pilih Wali Kelas --</option>@foreach($ustadzList as $u)<option value="{{ $u->id }}" {{ old('ustadz_id') == $u->id ? 'selected' : '' }}>{{ $u->nama_lengkap }}</option>@endforeach</select></div>
                     <div class="mb-3"><label class="form-label">Kapasitas</label><input type="number" name="kapasitas" class="form-control" value="{{ old('kapasitas', 30) }}" min="1" max="100"></div>
                     <div class="mb-3"><label class="form-label">Keterangan</label><textarea name="keterangan" class="form-control" rows="2">{{ old('keterangan') }}</textarea></div>
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save me-1"></i>Simpan</button>
@@ -26,7 +27,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead><tr><th>#</th><th>Nama Kelas</th><th>Tingkat</th><th>Jenis</th><th>Santri</th><th>Kapasitas</th><th width="90">Aksi</th></tr></thead>
+                        <thead><tr><th>#</th><th>Nama Kelas</th><th>Tingkat</th><th>Jenis</th><th>Wali Kelas</th><th>Santri</th><th>Kapasitas</th><th width="90">Aksi</th></tr></thead>
                         <tbody>
                             @forelse($kelas as $i => $k)
                             <tr>
@@ -34,6 +35,7 @@
                                 <td class="fw-600">{{ $k->nama }}</td>
                                 <td>{{ $k->tingkat }}</td>
                                 <td><span class="badge bg-info">{{ ucfirst($k->jenis) }}</span></td>
+                                <td>{{ $k->waliKelas ? $k->waliKelas->nama_lengkap : '-' }}</td>
                                 <td><span class="fw-700 text-primary">{{ $k->santri_count }}</span></td>
                                 <td>{{ $k->kapasitas }}</td>
                                 <td>
@@ -46,7 +48,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="7" class="text-center py-4 text-muted">Belum ada data kelas</td></tr>
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Belum ada data kelas</td></tr>
                             @endforelse
                         </tbody>
                     </table>

@@ -44,19 +44,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('santri', Admin\SantriController::class);
     Route::resource('ustadz', Admin\UstadzController::class);
     Route::resource('wali-santri', Admin\WaliSantriController::class);
-    Route::resource('kelas', Admin\KelasController::class);
+    Route::resource('kelas', Admin\KelasController::class)->parameters(['kelas' => 'kelas']);
     Route::resource('mapel', Admin\MapelController::class);
     Route::resource('tahun-ajaran', Admin\TahunAjaranController::class);
     Route::resource('jadwal', Admin\JadwalController::class);
     Route::resource('pengumuman', Admin\PengumumanController::class);
 
-    // Raport
-    Route::get('/raport/dashboard', [Admin\RaportController::class, 'dashboard'])->name('raport.dashboard');
-    Route::get('/raport', [Admin\RaportController::class, 'index'])->name('raport.index');
-    Route::post('/raport/generate', [Admin\RaportController::class, 'generate'])->name('raport.generate');
-    Route::get('/raport/{raport}', [Admin\RaportController::class, 'show'])->name('raport.show');
-    Route::get('/raport/{raport}/cetak', [Admin\RaportController::class, 'cetak'])->name('raport.cetak');
-    Route::post('/raport/{raport}/terbitkan', [Admin\RaportController::class, 'terbitkan'])->name('raport.terbitkan');
 
     // Pengaturan
     Route::get('/pengaturan', [Admin\PengaturanController::class, 'index'])->name('pengaturan.index');
@@ -77,11 +70,17 @@ Route::middleware(['auth', 'role:ustadz'])->prefix('ustadz')->name('ustadz.')->g
     // Absensi
     Route::get('/absensi', [Ustadz\AbsensiController::class, 'index'])->name('absensi.index');
     Route::post('/absensi', [Ustadz\AbsensiController::class, 'store'])->name('absensi.store');
-    Route::get('/absensi/rekap', [Ustadz\AbsensiController::class, 'rekap'])->name('absensi.rekap');
-    Route::post('/absensi/scan-qr', [Ustadz\AbsensiController::class, 'scanQr'])->name('absensi.scan-qr');
 
     // Catatan Pembinaan
     Route::resource('catatan', Ustadz\CatatanController::class);
+
+    // Raport (Wali Kelas)
+    Route::get('/raport/dashboard', [Ustadz\RaportController::class, 'dashboard'])->name('raport.dashboard');
+    Route::get('/raport', [Ustadz\RaportController::class, 'index'])->name('raport.index');
+    Route::post('/raport/generate', [Ustadz\RaportController::class, 'generate'])->name('raport.generate');
+    Route::get('/raport/{raport}', [Ustadz\RaportController::class, 'show'])->name('raport.show');
+    Route::get('/raport/{raport}/cetak', [Ustadz\RaportController::class, 'cetak'])->name('raport.cetak');
+    Route::post('/raport/{raport}/terbitkan', [Ustadz\RaportController::class, 'terbitkan'])->name('raport.terbitkan');
 });
 
 // ==================== SANTRI ROUTES ====================
@@ -107,14 +106,20 @@ Route::middleware(['auth', 'role:santri'])->prefix('santri')->name('santri.')->g
         $santri = auth()->user()->santri;
         $tahunAktif = \App\Models\TahunAjaran::aktif();
         $selectedTahun = request('tahun_ajaran_id') ?? $tahunAktif?->id;
-        $absensi = \App\Models\Absensi::where('santri_id', $santri?->id)
-            ->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
-            ->orderByDesc('tanggal')->paginate(20);
-        $stats = \App\Models\Absensi::where('santri_id', $santri?->id)
-            ->when($selectedTahun, fn($q) => $q->where('tahun_ajaran_id', $selectedTahun))
-            ->selectRaw('status, COUNT(*) as jumlah')->groupBy('status')->pluck('jumlah', 'status');
+        
+        $raport = \App\Models\Raport::where('santri_id', $santri?->id)
+            ->where('tahun_ajaran_id', $selectedTahun)
+            ->first();
+            
+        $stats = collect([
+            'Hadir' => $raport ? $raport->hadir : 0,
+            'Sakit' => $raport ? $raport->sakit : 0,
+            'Izin' => $raport ? $raport->izin : 0,
+            'Alfa' => $raport ? $raport->alfa : 0,
+        ]);
+        
         $tahunAjaran = \App\Models\TahunAjaran::orderByDesc('nama')->get();
-        return view('santri.absensi.index', compact('absensi', 'stats', 'santri', 'tahunAjaran', 'selectedTahun'));
+        return view('santri.absensi.index', compact('stats', 'santri', 'tahunAjaran', 'selectedTahun'));
     })->name('absensi.index');
 
     // Jadwal

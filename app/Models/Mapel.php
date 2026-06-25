@@ -44,7 +44,6 @@ class Mapel extends Model
         return match($this->kategori) {
             'diniyah' => '<span class="badge bg-success">Diniyah</span>',
             'umum' => '<span class="badge bg-primary">Umum</span>',
-            'muatan_lokal' => '<span class="badge bg-warning text-dark">Mulok</span>',
             default => '<span class="badge bg-secondary">-</span>',
         };
     }

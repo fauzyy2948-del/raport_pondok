@@ -2,7 +2,7 @@
 @section('title', 'Detail Raport — ' . ($raport->santri->nama ?? $raport->santri->user?->name ?? 'Santri'))
 @section('page-title', 'Detail Raport Santri')
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.raport.index') }}">Raport</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ustadz.raport.index') }}">Raport</a></li>
     <li class="breadcrumb-item active">Detail</li>
 @endsection
 
@@ -128,12 +128,12 @@
             </div>
         </div>
         <div class="d-flex flex-column gap-2 mt-1">
-            <a href="{{ route('admin.raport.cetak', $raport->id) }}" target="_blank"
+            <a href="{{ route('ustadz.raport.cetak', $raport->id) }}" target="_blank"
                class="btn btn-sm" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.35);">
                 <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
             </a>
             @if(!$raport->diterbitkan)
-                <form action="{{ route('admin.raport.terbitkan', $raport->id) }}" method="POST">
+                <form action="{{ route('ustadz.raport.terbitkan', $raport->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-gold btn-sm w-100"
                         onclick="return confirm('Terbitkan raport ini? Santri dan wali dapat melihatnya.')">

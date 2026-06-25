@@ -62,4 +62,14 @@ class Ustadz extends Model
             ? asset('storage/' . $this->foto)
             : asset('images/default-ustadz.png');
     }
+
+    public function kelasWali()
+    {
+        return $this->hasOne(Kelas::class, 'ustadz_id');
+    }
+
+    public function isWaliKelas(): bool
+    {
+        return $this->kelasWali()->exists();
+    }
 }

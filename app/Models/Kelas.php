@@ -12,8 +12,13 @@ class Kelas extends Model
     protected $table = 'kelas';
 
     protected $fillable = [
-        'nama', 'tingkat', 'jenis', 'kapasitas', 'keterangan',
+        'nama', 'tingkat', 'jenis', 'kapasitas', 'keterangan', 'ustadz_id',
     ];
+
+    public function waliKelas()
+    {
+        return $this->belongsTo(Ustadz::class, 'ustadz_id');
+    }
 
     public function santri()
     {

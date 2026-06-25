@@ -11,7 +11,7 @@
     <div class="card-body">
         <form method="GET" class="row g-2 mb-3">
             <div class="col-md-5"><div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="text" name="search" class="form-control" placeholder="Cari nama / kode..." value="{{ request('search') }}"></div></div>
-            <div class="col-md-3"><select name="kategori" class="form-select"><option value="">Semua Kategori</option><option value="diniyah" {{ request('kategori') === 'diniyah' ? 'selected' : '' }}>Diniyah</option><option value="umum" {{ request('kategori') === 'umum' ? 'selected' : '' }}>Umum</option><option value="muatan_lokal" {{ request('kategori') === 'muatan_lokal' ? 'selected' : '' }}>Muatan Lokal</option></select></div>
+            <div class="col-md-3"><select name="kategori" class="form-select"><option value="">Semua Kategori</option><option value="diniyah" {{ request('kategori') === 'diniyah' ? 'selected' : '' }}>Diniyah</option><option value="umum" {{ request('kategori') === 'umum' ? 'selected' : '' }}>Umum</option></select></div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
         </form>
         <div class="table-responsive">

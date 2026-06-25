@@ -44,15 +44,7 @@
     <span>Jadwal Pelajaran</span>
 </a>
 
-<a href="{{ route('admin.raport.dashboard') }}" class="nav-link {{ request()->routeIs('admin.raport.dashboard') ? 'active' : '' }}">
-    <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
-    <span>Dashboard Raport</span>
-</a>
 
-<a href="{{ route('admin.raport.index') }}" class="nav-link {{ request()->routeIs('admin.raport.index', 'admin.raport.show') ? 'active' : '' }}">
-    <span class="nav-icon"><i class="bi bi-file-earmark-text-fill"></i></span>
-    <span>Kelola Raport</span>
-</a>
 
 <a href="{{ route('admin.pengumuman.index') }}" class="nav-link {{ request()->routeIs('admin.pengumuman.*') ? 'active' : '' }}">
     <span class="nav-icon"><i class="bi bi-megaphone-fill"></i></span>

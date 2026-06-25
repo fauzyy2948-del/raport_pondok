@@ -19,7 +19,7 @@
     --border-radius: 12px;
     --shadow: 0 2px 15px rgba(0,0,0,0.08);
     --shadow-md: 0 4px 25px rgba(0,0,0,0.12);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.15s ease;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
